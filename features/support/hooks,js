@@ -1,0 +1,40 @@
+import { Before, After, ITestCaseHookParameter } from "@cucumber/cucumber";
+import { CustomWorldType } from "../../tests/world";
+import fs from "fs";
+
+Before(async function (this: CustomWorldType) {
+  await this.init();
+});
+
+After(async function (this: CustomWorldType, scenario: ITestCaseHookParameter) {
+  // Screenshot on failure only
+  if (scenario.result?.status === "FAILED" && this.page) {
+    const screenshotName = `${scenario.pickle.name.replace(/[^a-zA-Z0-9]/g, "_")}_${Date.now()}.png`;
+    
+    if (!fs.existsSync("screenshots")) {
+      fs.mkdirSync("screenshots");
+    }
+    
+    await this.page.screenshot({ 
+      path: `screenshots/${screenshotName}`, 
+      fullPage: true 
+    });
+    console.log(`📸 Screenshot saved: screenshots/${screenshotName}`);
+  }
+
+  // Force close browser
+  try {
+    if (this.browser) {
+      await this.browser.close();
+      console.log("✅ Browser closed");
+    }
+  } catch (error) {
+    console.error("❌ Error closing browser:", error);
+  }
+  
+  // Force process exit if needed
+  setTimeout(() => {
+    console.log("🔄 Force exit after 2 seconds");
+    process.exit(0);
+  }, 2000);
+});
