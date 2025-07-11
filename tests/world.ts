@@ -11,7 +11,7 @@ class CustomWorld extends World {
   }
 
   async init() {
-    this.browser = await chromium.launch({ headless: false,
+    this.browser = await chromium.launch({ headless: true,
 
        args: [
             '--disable-blink-features=AutomationControlled',
@@ -21,7 +21,7 @@ class CustomWorld extends World {
             '--no-sandbox',
             '--disable-setuid-sandbox'
         ]
-        
+
      }); // ✅ set browser here
     this.context = await this.browser.newContext();
     this.page = await this.context.newPage();
